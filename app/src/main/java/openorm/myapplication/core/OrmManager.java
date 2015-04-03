@@ -1,5 +1,7 @@
 package openorm.myapplication.core;
 
+import android.content.Context;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -15,19 +17,24 @@ import static openorm.myapplication.core.AnnotationManager.FieldType;
  */
 public class OrmManager {
 
-    public static void register(Object object) {
+    static final String AUTHORITY = "com.cnh.mobiledealerconnect";
+    static final String BASE_CONTENT_URI = "content://" + AUTHORITY + "/";
+
+    private Context mContext;
+
+    public static void register(Object object, Context context) {
         if (object != null) {
             if (object instanceof Collection) {
                 for (Object o : (Collection) object) {
-                    registerSingleObject(o);
+                    registerSingleObject(o, context);
                 }
             } else {
-                registerSingleObject(object);
+                registerSingleObject(object, context);
             }
         }
     }
 
-    private static void registerSingleObject(Object object) {
+    private static void registerSingleObject(Object object, Context context) {
         Class clazz = object.getClass();
         String tableName;
         List<OrmObject> fields = new ArrayList<>();
@@ -61,7 +68,7 @@ public class OrmManager {
             fields.add(new OrmObject(fieldName, fieldType, isPrimaryKey, isForeignKey, foreignValues, value));
         }
 
-        OrmCrudManager.createTable(tableName, fields);
+        OrmCrudManager.createTable(tableName, fields, context);
     }
 
     private static Object getValue(Annotation annotation, String fieldName) {

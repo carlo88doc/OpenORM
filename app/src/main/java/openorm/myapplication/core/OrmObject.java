@@ -65,4 +65,6 @@ public class OrmObject implements AnnotationManager.OrmField, Comparable<OrmObje
 
         return 0;
     }
+
+
 }

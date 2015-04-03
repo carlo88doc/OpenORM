@@ -2,14 +2,14 @@ package openorm.myapplication;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import openorm.myapplication.core.OrmManager;
+import openorm.myapplication.test.Artist;
+import openorm.myapplication.test.Track;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -19,23 +19,19 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Test test = new Test();
+        Artist artist = new Artist();
+        Track track = new Track();
 
-        test.setDescription("Description 1");
-        test.setId("ID_1");
-        test.setFkTest("FK_1");
+        artist.setId(UUID.randomUUID().toString());
+        artist.setName("Sottotono");
+        artist.setSurname("");
 
-        Test test2 = new Test();
-        test2.setFkTest("FK_2");
-        test2.setId("ID_2");
-        test2.setDescription("Description 2");
+        track.setId(UUID.randomUUID().toString());
+        track.setTitle("La mia coccinella");
+        track.setFkArtist(artist.getId());
 
-
-        List<Test> lst = new ArrayList<>();
-        lst.add(test);
-        lst.add(test2);
-
-        OrmManager.register(lst);
+        OrmManager.register(artist, getApplicationContext());
+        OrmManager.register(track, getApplicationContext());
 
     }
 
