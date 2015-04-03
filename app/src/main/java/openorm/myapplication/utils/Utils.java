@@ -1,6 +1,6 @@
 package openorm.myapplication.utils;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Created by carlo on 22/01/15.
@@ -11,8 +11,8 @@ public class Utils {
         return (s != null && s.length() > 0);
     }
 
-    public static boolean isNotNullOrEmpty(List list) {
-        return (list != null && list.size() > 0);
+    public static boolean isNotNullOrEmpty(Collection coll) {
+        return (coll != null && coll.size() > 0);
     }
 
 

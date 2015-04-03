@@ -25,7 +25,6 @@ public class OrmManager {
                 registerSingleObject(object);
             }
         }
-
     }
 
     private static void registerSingleObject(Object object) {
@@ -60,10 +59,9 @@ public class OrmManager {
             }
 
             fields.add(new OrmObject(fieldName, fieldType, isPrimaryKey, isForeignKey, foreignValues, value));
-
         }
 
-        OrmCrudManager.createOrUpdateTable(tableName, fields);
+        OrmCrudManager.createTable(tableName, fields);
     }
 
     private static Object getValue(Annotation annotation, String fieldName) {

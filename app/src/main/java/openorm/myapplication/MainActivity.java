@@ -30,6 +30,7 @@ public class MainActivity extends ActionBarActivity {
         test2.setId("ID_2");
         test2.setDescription("Description 2");
 
+
         List<Test> lst = new ArrayList<>();
         lst.add(test);
         lst.add(test2);

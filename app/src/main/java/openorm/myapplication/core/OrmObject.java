@@ -5,7 +5,7 @@ import java.lang.annotation.Annotation;
 /**
  * Created by carlo on 01/01/15.
  */
-public class OrmObject implements AnnotationManager.OrmField {
+public class OrmObject implements AnnotationManager.OrmField, Comparable<OrmObject> {
     private String dbFieldName;
     private AnnotationManager.FieldType dbFieldType;
     private boolean isPrimaryKey;
@@ -47,11 +47,22 @@ public class OrmObject implements AnnotationManager.OrmField {
 
     @Override
     public String[] foreignValues() {
-        return new String[0];
+        return foreignValues;
     }
 
     @Override
     public Class<? extends Annotation> annotationType() {
         return null;
+    }
+
+    @Override
+    public int compareTo(OrmObject another) {
+        if (this.fieldName() == "id") {
+            return -1;
+        } else if (this.foreignValues() != null) {
+            return 1;
+        }
+
+        return 0;
     }
 }
