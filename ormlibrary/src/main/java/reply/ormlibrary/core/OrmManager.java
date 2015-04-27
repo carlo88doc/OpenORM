@@ -47,19 +47,7 @@ public class OrmManager {
 
         HashMap<String, Object> mapValues = generateObjectValues(object);
 
-        if (mapValues.containsKey("id")) {
-            Object idValue = mapValues.get("id");
-
-            if (idValue != null) {
-                //update table
-                OrmCrudManager.updateTable(tableName, mapValues, mContext);
-            } else {
-                //insert into
-                OrmCrudManager.insertTable(tableName, mapValues, mContext);
-            }
-        } else {
-            return;
-        }
+        OrmCrudManager.insertOrUpdate(tableName, mapValues, mContext);
     }
 
 

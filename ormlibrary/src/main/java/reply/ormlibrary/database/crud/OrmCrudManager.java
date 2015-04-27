@@ -1,6 +1,8 @@
 package reply.ormlibrary.database.crud;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,9 +68,6 @@ public class OrmCrudManager {
                             stringBuilderForeignKeys.append(") ");
 
                             foreignSql.add(stringBuilderForeignKeys.toString());
-
-//                            foreignSql.add(" FOREIGN KEY(" + field.fieldName() + ")" +
-//                                    " REFERENCES " + foreignValues.get(0) + "(" + foreignValues.get(1) + ") ");
                         }
                     }
                 }
@@ -92,69 +91,30 @@ public class OrmCrudManager {
         }
     }
 
-    public static void insertTable(String tableName, HashMap<String, Object> values, Context context) {
-        StringBuilder sql;
+    public static void insertOrUpdate(String tableName, HashMap<String, Object> values, Context context) {
 
-        if (tableName != null && values != null) {
-            sql = new StringBuilder("INSERT INTO ");
-            sql.append(tableName);
+        if (values != null) {
+            SQLiteDatabase db = OrmOpenHelper.getInstance(context, context.getPackageName() + "_db").getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
 
-            StringBuilder stringBuilderColumns = new StringBuilder();
-            StringBuilder stringBuilderValues = new StringBuilder();
+            String idColumn = "id";
+            String valueID = (String) values.get(idColumn);
 
-            int i = 0;
-
+            //TODO replace with current type
             for (String key : values.keySet()) {
-                stringBuilderColumns.append(key);
-                //TODO replace with defaultValue
-                Object value = values.get(key);
-                stringBuilderValues.append(value != null ? value : "");
-                i++;
-                if (i < values.size()) {
-                    stringBuilderColumns.append(",");
-                    stringBuilderValues.append(",");
-                }
+                contentValues.put(key, (String) values.get(key));
             }
 
-            sql.append(tableName);
-            sql.append("(");
-            sql.append(stringBuilderColumns);
-            sql.append(") VALUES");
-            sql.append(stringBuilderValues);
+            if (valueID == null) {
+                //insert
+                db.insert(tableName, null, contentValues);
+            } else {
+                //update
+                String[] whereClause = {valueID};
+                db.update(tableName, contentValues, idColumn, whereClause);
+            }
 
-            OrmOpenHelper.getInstance(context, context.getPackageName() + "_db").execQuery(sql.toString());
         }
     }
 
-    public static void updateTable(String tableName, HashMap<String, Object> values, Context context) {
-
-//        OrmOpenHelper.getInstance(context, context.getPackageName() + "_db").e(sql.toString());
-//        StringBuilder sql;
-//        String idValue = (String)values.get("id");
-//
-//        sql = new StringBuilder("UPDATE ");
-//        sql.append(tableName);
-//
-//        int i=0;
-//
-//        StringBuilder stringBuilderValues = new StringBuilder("SET ");
-//
-//        for (String key : values.keySet()){
-//            String column = key;
-//            //TODO replace with value formatted by type
-//            String value = (String)values.get(key);
-//            stringBuilderValues.append(column);
-//            stringBuilderValues.append("=");
-//            stringBuilderValues.append(value);
-//
-//            i++;
-//            if (i<values.size()){
-//                stringBuilderValues.append(",");
-//            }
-//        }
-//
-//        sql.append(" ");
-//        sql.append(stringBuilderValues);
-//        sql.append(" WHERE ID =");
-    }
 }

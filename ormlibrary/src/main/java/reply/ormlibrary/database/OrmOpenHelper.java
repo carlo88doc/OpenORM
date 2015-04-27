@@ -38,6 +38,10 @@ public class OrmOpenHelper extends SQLiteOpenHelper {
         database.execSQL(sql);
     }
 
+    public SQLiteDatabase getWritableDatabase() {
+        return getWritableDatabase();
+    }
+
     public Cursor execQuery(String sql, String[] selectionArgs) {
         SQLiteDatabase database = getReadableDatabase();
         return database.rawQuery(sql, selectionArgs);
