@@ -1,4 +1,4 @@
-package openorm.myapplication.utils;
+package reply.ormlibrary.utils;
 
 /**
  * Created by carlo on 03/04/15.

@@ -1,6 +1,7 @@
 package openorm.myapplication.test;
 
-import openorm.myapplication.core.AnnotationManager;
+
+import reply.ormlibrary.core.AnnotationManager;
 
 /**
  * Created by carlo on 01/01/15.

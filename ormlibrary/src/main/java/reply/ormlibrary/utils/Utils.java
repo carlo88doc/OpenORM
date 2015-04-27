@@ -1,4 +1,4 @@
-package openorm.myapplication.utils;
+package reply.ormlibrary.utils;
 
 import java.util.Collection;
 

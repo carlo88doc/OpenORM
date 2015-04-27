@@ -1,4 +1,4 @@
-package openorm.myapplication.core;
+package reply.ormlibrary.core;
 
 import java.lang.annotation.Annotation;
 

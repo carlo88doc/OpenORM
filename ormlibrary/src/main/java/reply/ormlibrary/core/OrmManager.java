@@ -1,4 +1,4 @@
-package openorm.myapplication.core;
+package reply.ormlibrary.core;
 
 import android.content.Context;
 
@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import openorm.myapplication.database.crud.OrmCrudManager;
-
-import static openorm.myapplication.core.AnnotationManager.FieldType;
+import reply.ormlibrary.database.crud.OrmCrudManager;
 
 /**
  * Created by carlo on 01/01/15.
@@ -39,7 +37,7 @@ public class OrmManager {
         String tableName;
         List<OrmObject> fields = new ArrayList<>();
         String fieldName;
-        FieldType fieldType;
+        AnnotationManager.FieldType fieldType;
         boolean isPrimaryKey;
         boolean isForeignKey;
         String[] foreignValues;
@@ -53,7 +51,7 @@ public class OrmManager {
             f.setAccessible(true);
             Annotation a = f.getAnnotation(AnnotationManager.OrmField.class);
             fieldName = (String) getValue(a, "fieldName");
-            fieldType = (FieldType) getValue(a, "fieldType");
+            fieldType = (AnnotationManager.FieldType) getValue(a, "fieldType");
             isPrimaryKey = (Boolean) getValue(a, "isPrimaryKey");
             isForeignKey = (Boolean) getValue(a, "isForeignKey");
             foreignValues = (String[]) getValue(a, "foreignValues");

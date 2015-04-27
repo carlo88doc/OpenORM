@@ -1,4 +1,4 @@
-package openorm.myapplication.database.crud;
+package reply.ormlibrary.database.crud;
 
 import android.content.Context;
 
@@ -7,10 +7,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import openorm.myapplication.core.AnnotationManager;
-import openorm.myapplication.core.OrmObject;
-import openorm.myapplication.database.OrmOpenHelper;
-import openorm.myapplication.utils.Utils;
+import reply.ormlibrary.core.AnnotationManager;
+import reply.ormlibrary.core.OrmObject;
+import reply.ormlibrary.database.OrmOpenHelper;
+import reply.ormlibrary.utils.Utils;
+
 
 /**
  * Created by carlo on 22/01/15.
@@ -18,12 +19,16 @@ import openorm.myapplication.utils.Utils;
 public class OrmCrudManager {
 
     public static void createTable(String tableName, List<OrmObject> fields, Context context) {
+        StringBuilder stringBuilder;
         if (Utils.isNotNullOrEmpty(tableName) && Utils.isNotNullOrEmpty(fields)) {
 
             List<String> foreignSql = null;
             Collections.sort(fields);
 
-            String sqlCreateTable = "CREATE TABLE " + tableName + " (";
+            stringBuilder = new StringBuilder("CREATE TABLE ");
+            stringBuilder.append(tableName);
+            stringBuilder.append(" (");
+//            String sqlCreateTable =  + tableName + " (";
 
             for (int i = 0; i < fields.size(); i++) {
                 OrmObject field = fields.get(i);
@@ -31,12 +36,21 @@ public class OrmCrudManager {
                 if (field != null && Utils.isNotNullOrEmpty(field.fieldName()) && field.fieldType() != null) {
                     String type = AnnotationManager.getFieldTypeString(field.fieldType());
 
-                    sqlCreateTable += " " + field.fieldName() + " " + type + " ";
+                    stringBuilder.append(" ");
+                    stringBuilder.append(field.fieldName());
+                    stringBuilder.append(" ");
+                    stringBuilder.append(type);
+                    stringBuilder.append(" ");
+
+
+//                    sqlCreateTable += " " + field.fieldName() + " " + type + " ";
                     if (field.isPrimaryKey()) {
-                        sqlCreateTable += "PRIMARY KEY ";
+                        stringBuilder.append("PRIMARY KEY ");
+//                        sqlCreateTable += "PRIMARY KEY ";
                     }
                     if (i < fields.size() - 1) {
-                        sqlCreateTable += ",";
+                        stringBuilder.append(",");
+//                        sqlCreateTable += ",";
                     }
 
                     if (field.isForeignKey() && field.foreignValues() != null) {
@@ -54,20 +68,26 @@ public class OrmCrudManager {
             }
 
             if (Utils.isNotNullOrEmpty(foreignSql)) {
-                sqlCreateTable += ",";
+                stringBuilder.append(",");
+//                sqlCreateTable += ",";
                 for (int i = 0; i < foreignSql.size(); i++) {
-                    sqlCreateTable += foreignSql.get(i);
+                    stringBuilder.append(foreignSql.get(i));
+//                    sqlCreateTable += foreignSql.get(i);
 
                     if (i < foreignSql.size() - 1) {
-                        sqlCreateTable += ",";
+                        stringBuilder.append(",");
+//                        sqlCreateTable += ",";
                     }
 
                 }
             }
 
-            sqlCreateTable += ")";
+            stringBuilder.append(") ");
+//            sqlCreateTable += ")";
 
-            OrmOpenHelper.getInstance(context, "DB_PROVA").execQuery(sqlCreateTable);
+            OrmOpenHelper.getInstance(context, context.getPackageName() + "_db").execQuery(stringBuilder.toString());
+
+
         }
     }
 

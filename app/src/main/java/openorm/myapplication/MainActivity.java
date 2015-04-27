@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import openorm.myapplication.core.OrmManager;
 import openorm.myapplication.test.Artist;
 import openorm.myapplication.test.Track;
+import reply.ormlibrary.core.OrmManager;
 
 
 public class MainActivity extends ActionBarActivity {
