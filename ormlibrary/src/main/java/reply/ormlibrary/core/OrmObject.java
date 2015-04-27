@@ -11,15 +11,13 @@ public class OrmObject implements AnnotationManager.OrmField, Comparable<OrmObje
     private boolean isPrimaryKey;
     private boolean isForeignKey;
     private String[] foreignValues;
-    private Object value;
 
     public OrmObject() {
     }
 
-    public OrmObject(String fieldName, AnnotationManager.FieldType fieldType, boolean isPrimaryKey, boolean isForeignKey, String[] foreignValues, Object value) {
+    public OrmObject(String fieldName, AnnotationManager.FieldType fieldType, boolean isPrimaryKey, boolean isForeignKey, String[] foreignValues) {
         this.dbFieldName = fieldName;
         this.dbFieldType = fieldType;
-        this.value = value;
         this.isPrimaryKey = isPrimaryKey;
         this.isForeignKey = isForeignKey;
         this.foreignValues = foreignValues;

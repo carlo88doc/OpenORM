@@ -22,6 +22,10 @@ public class MainActivity extends ActionBarActivity {
         Artist artist = new Artist();
         Track track = new Track();
 
+        OrmManager ormManager = OrmManager.getInstance(getApplicationContext());
+        ormManager.createTable(artist);
+        ormManager.createTable(track);
+
         artist.setId(UUID.randomUUID().toString());
         artist.setName("Sottotono");
         artist.setSurname("");
@@ -30,8 +34,9 @@ public class MainActivity extends ActionBarActivity {
         track.setTitle("La mia coccinella");
         track.setFkArtist(artist.getId());
 
-        OrmManager.register(artist, getApplicationContext());
-        OrmManager.register(track, getApplicationContext());
+        ormManager.insertOrUpdate(artist);
+        ormManager.insertOrUpdate(track);
+
 
     }
 

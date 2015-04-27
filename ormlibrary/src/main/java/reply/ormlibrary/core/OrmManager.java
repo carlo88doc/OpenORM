@@ -6,33 +6,72 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import reply.ormlibrary.database.crud.OrmCrudManager;
+import reply.ormlibrary.utils.Utils;
 
 /**
  * Created by carlo on 01/01/15.
  */
 public class OrmManager {
 
-    static final String AUTHORITY = "com.cnh.mobiledealerconnect";
-    static final String BASE_CONTENT_URI = "content://" + AUTHORITY + "/";
+//    static final String AUTHORITY = "com.cnh.mobiledealerconnect";
+//    static final String BASE_CONTENT_URI = "content://" + AUTHORITY + "/";
 
     private Context mContext;
 
-    public static void register(Object object, Context context) {
+    public static OrmManager getInstance(Context context) {
+        OrmManager ormManager = new OrmManager();
+        ormManager.mContext = context;
+
+        return ormManager;
+    }
+
+    public void createTable(Object object) {
         if (object != null) {
             if (object instanceof Collection) {
                 for (Object o : (Collection) object) {
-                    registerSingleObject(o, context);
+                    executeCreateTable(o);
                 }
             } else {
-                registerSingleObject(object, context);
+                executeCreateTable(object);
             }
         }
     }
 
-    private static void registerSingleObject(Object object, Context context) {
+    public void insertOrUpdate(Object object) {
+        Annotation annotationTable = object.getClass().getAnnotation(AnnotationManager.OrmTable.class);
+        String tableName = (String) getValue(annotationTable, "tableName");
+
+        HashMap<String, Object> mapValues = generateObjectValues(object);
+
+        if (mapValues.containsKey("id")) {
+            Object idValue = mapValues.get("id");
+
+            if (idValue != null) {
+                //update table
+                OrmCrudManager.updateTable(tableName, mapValues, mContext);
+            } else {
+                //insert into
+                OrmCrudManager.insertTable(tableName, mapValues, mContext);
+            }
+        } else {
+            return;
+        }
+    }
+
+
+    private void executeUpdateTable(String tableName, HashMap<String, Object> values) {
+        StringBuilder sql;
+
+        if (tableName != null && values != null) {
+
+        }
+    }
+
+    private void executeCreateTable(Object object) {
         Class clazz = object.getClass();
         String tableName;
         List<OrmObject> fields = new ArrayList<>();
@@ -56,17 +95,40 @@ public class OrmManager {
             isForeignKey = (Boolean) getValue(a, "isForeignKey");
             foreignValues = (String[]) getValue(a, "foreignValues");
 
-            Object value = null;
-            try {
-                value = f.get(object);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
 
-            fields.add(new OrmObject(fieldName, fieldType, isPrimaryKey, isForeignKey, foreignValues, value));
+            fields.add(new OrmObject(fieldName, fieldType, isPrimaryKey, isForeignKey, foreignValues));
         }
 
-        OrmCrudManager.createTable(tableName, fields, context);
+        OrmCrudManager.createTable(tableName, fields, mContext);
+    }
+
+    private HashMap<String, Object> generateObjectValues(Object o) {
+        HashMap<String, Object> map = null;
+
+        if (o != null) {
+            map = new HashMap<>();
+
+            Field[] declaredFields = o.getClass().getDeclaredFields();
+
+            for (Field f : declaredFields) {
+                f.setAccessible(true);
+                Annotation a = f.getAnnotation(AnnotationManager.OrmField.class);
+                String fieldName = (String) getValue(a, "fieldName");
+                Object fieldValue = null;
+
+                try {
+                    fieldValue = f.get(o);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+                if (Utils.isNotNullOrEmpty(fieldName)) {
+                    map.put(fieldName, fieldValue);
+                }
+            }
+        }
+
+        return map;
     }
 
     private static Object getValue(Annotation annotation, String fieldName) {
