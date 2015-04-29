@@ -19,7 +19,11 @@ public class OrmOpenHelper extends SQLiteOpenHelper {
     }
 
     public static OrmOpenHelper getInstance(Context context, String databaseName) {
-        _instance = new OrmOpenHelper(databaseName, context);
+
+        if (_instance == null) {
+            _instance = new OrmOpenHelper(databaseName, context);
+        }
+
         return _instance;
     }
 
@@ -34,36 +38,49 @@ public class OrmOpenHelper extends SQLiteOpenHelper {
     }
 
     public void execQuery(String sql) {
-        SQLiteDatabase database = getReadableDatabase();
-        database.execSQL(sql);
+        getReadableDatabase().execSQL(sql);
     }
 
-    public SQLiteDatabase getWritableDatabase() {
-        return getWritableDatabase();
+    public Cursor execRead(String sql, String[] selectionArgs) {
+        return getReadableDatabase().rawQuery(sql, selectionArgs);
     }
 
-    public Cursor execQuery(String sql, String[] selectionArgs) {
-        SQLiteDatabase database = getReadableDatabase();
-        return database.rawQuery(sql, selectionArgs);
+    public long execInsert(String tableName, String nullColumnHack, ContentValues contentValues) {
+        return getWritableDatabase().insert(tableName, nullColumnHack, contentValues);
+    }
+
+    public long execDelete(String tableName, String[] whereColumns, String[] whereArgs) {
+        String whereClause = getWhereClause(whereColumns);
+        return getWritableDatabase().delete(tableName, whereClause, whereArgs);
     }
 
     public int execUpdate(String table, ContentValues values, String[] whereColumns, String[] whereArgs) {
 
         ContentValues cvNormalized = new ContentValues();
-        String whereClause = "";
+        String whereClause = getWhereClause(whereColumns);
 
         for (String key : values.keySet()) {
+            String value = (String) values.get(key);
             if (key.contains(".")) {
                 String newKey = key.substring(key.lastIndexOf(".") + 1, key.length());
-                cvNormalized.put(newKey, (String) values.get(key));
+
+                cvNormalized.put(newKey, value);
+            } else {
+                cvNormalized.put(key, value);
             }
         }
 
+        return getWritableDatabase().update(table, cvNormalized, whereClause, whereArgs);
+    }
+
+    private String getWhereClause(String[] whereColumns) {
+        String whereClause = "";
         for (String where : whereColumns) {
             if (where.contains(".")) {
                 where = where.substring(where.lastIndexOf(".") + 1, where.length());
-                where = where + "=?";
             }
+
+            where = where + "=?";
 
             if (whereClause.length() == 0) {
                 whereClause = where;
@@ -72,7 +89,7 @@ public class OrmOpenHelper extends SQLiteOpenHelper {
             }
         }
 
-        SQLiteDatabase database = getReadableDatabase();
-        return database.update(table, cvNormalized, whereClause, whereArgs);
+        return whereClause;
     }
+
 }

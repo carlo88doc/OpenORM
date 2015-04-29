@@ -2,7 +2,6 @@ package reply.ormlibrary.database.crud;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +20,21 @@ import reply.ormlibrary.utils.Utils;
  */
 public class OrmCrudManager {
 
-    public static void createTable(String tableName, List<OrmObject> fields, Context context) {
+    private static OrmCrudManager _instance;
+    private Context mContext;
+    private String mDatabaseName;
+
+    public static OrmCrudManager getInstance(Context context, String databaseName) {
+        if (_instance == null) {
+            _instance = new OrmCrudManager();
+            _instance.mContext = context;
+            _instance.mDatabaseName = databaseName;
+        }
+
+        return _instance;
+    }
+
+    public void createTable(String tableName, List<OrmObject> fields) {
         StringBuilder stringBuilder;
         if (Utils.isNotNullOrEmpty(tableName) && Utils.isNotNullOrEmpty(fields)) {
 
@@ -87,34 +100,49 @@ public class OrmCrudManager {
 
             stringBuilder.append(") ");
 
-            OrmOpenHelper.getInstance(context, context.getPackageName() + "_db").execQuery(stringBuilder.toString());
+            OrmOpenHelper.getInstance(mContext, mDatabaseName).execQuery(stringBuilder.toString());
         }
     }
 
-    public static void insertOrUpdate(String tableName, HashMap<String, Object> values, Context context) {
+    public void insert(String tableName, HashMap<String, Object> values) {
 
         if (values != null) {
-            SQLiteDatabase db = OrmOpenHelper.getInstance(context, context.getPackageName() + "_db").getWritableDatabase();
-            ContentValues contentValues = new ContentValues();
+            ContentValues contentValues = getContentValuesFromMapValues(values);
 
-            String idColumn = "id";
-            String valueID = (String) values.get(idColumn);
-
-            //TODO replace with current type
-            for (String key : values.keySet()) {
-                contentValues.put(key, (String) values.get(key));
+            if (contentValues != null) {
+                OrmOpenHelper.getInstance(mContext, mDatabaseName).execInsert(tableName, null, contentValues);
             }
-
-            if (valueID == null) {
-                //insert
-                db.insert(tableName, null, contentValues);
-            } else {
-                //update
-                String[] whereClause = {valueID};
-                db.update(tableName, contentValues, idColumn, whereClause);
-            }
-
         }
+    }
+
+    public void update(String tableName, HashMap<String, Object> values) {
+
+        String idColumn = "id";
+
+        if (values != null && values.containsKey(idColumn)) {
+            ContentValues contentValues = getContentValuesFromMapValues(values);
+
+            if (contentValues != null) {
+                String[] whereColumns = {idColumn};
+                String[] whereClause = {(String) values.get(idColumn)};
+                OrmOpenHelper.getInstance(mContext, mDatabaseName).execUpdate(tableName, contentValues, whereColumns, whereClause);
+            }
+        }
+    }
+
+
+    private ContentValues getContentValuesFromMapValues(HashMap<String, Object> map) {
+        ContentValues contentValues = null;
+
+        if (map != null) {
+            contentValues = new ContentValues();
+
+            for (String key : map.keySet()) {
+                contentValues.put(key, (String) map.get(key));
+            }
+        }
+
+        return contentValues;
     }
 
 }

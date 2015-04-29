@@ -17,16 +17,30 @@ import reply.ormlibrary.utils.Utils;
  */
 public class OrmManager {
 
-//    static final String AUTHORITY = "com.cnh.mobiledealerconnect";
-//    static final String BASE_CONTENT_URI = "content://" + AUTHORITY + "/";
+    private static OrmManager _instance;
+    private OrmCrudManager mCrudManager;
 
     private Context mContext;
+    private String mDatabaseName;
+
 
     public static OrmManager getInstance(Context context) {
-        OrmManager ormManager = new OrmManager();
-        ormManager.mContext = context;
+        String databaseName = context.getPackageName().concat("_db");
+        return getInstance(context, databaseName);
+    }
 
-        return ormManager;
+    public static OrmManager getInstance(Context context, String databaseName) {
+        if (_instance == null) {
+            _instance = new OrmManager();
+            _instance.mContext = context;
+
+            String dbNameNormalized = databaseName.replace(".", "");
+            _instance.mDatabaseName = dbNameNormalized;
+
+            _instance.mCrudManager = OrmCrudManager.getInstance(context, dbNameNormalized);
+        }
+
+        return _instance;
     }
 
     public void createTable(Object object) {
@@ -41,23 +55,25 @@ public class OrmManager {
         }
     }
 
-    public void insertOrUpdate(Object object) {
+
+    public void update(Object object) {
         Annotation annotationTable = object.getClass().getAnnotation(AnnotationManager.OrmTable.class);
         String tableName = (String) getValue(annotationTable, "tableName");
 
         HashMap<String, Object> mapValues = generateObjectValues(object);
 
-        OrmCrudManager.insertOrUpdate(tableName, mapValues, mContext);
+        mCrudManager.update(tableName, mapValues);
     }
 
+    public void insert(Object object) {
+        Annotation annotationTable = object.getClass().getAnnotation(AnnotationManager.OrmTable.class);
+        String tableName = (String) getValue(annotationTable, "tableName");
 
-    private void executeUpdateTable(String tableName, HashMap<String, Object> values) {
-        StringBuilder sql;
+        HashMap<String, Object> mapValues = generateObjectValues(object);
 
-        if (tableName != null && values != null) {
-
-        }
+        mCrudManager.insert(tableName, mapValues);
     }
+
 
     private void executeCreateTable(Object object) {
         Class clazz = object.getClass();
@@ -87,7 +103,7 @@ public class OrmManager {
             fields.add(new OrmObject(fieldName, fieldType, isPrimaryKey, isForeignKey, foreignValues));
         }
 
-        OrmCrudManager.createTable(tableName, fields, mContext);
+        mCrudManager.createTable(tableName, fields);
     }
 
     private HashMap<String, Object> generateObjectValues(Object o) {
