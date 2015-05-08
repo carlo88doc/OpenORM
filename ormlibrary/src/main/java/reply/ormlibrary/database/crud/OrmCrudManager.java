@@ -2,6 +2,7 @@ package reply.ormlibrary.database.crud;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,29 +105,50 @@ public class OrmCrudManager {
         }
     }
 
-    public void insert(String tableName, HashMap<String, Object> values) {
-
+    public void insertOrUpdate(String tableName, HashMap<String, Object> values) {
         if (values != null) {
             ContentValues contentValues = getContentValuesFromMapValues(values);
 
             if (contentValues != null) {
-                OrmOpenHelper.getInstance(mContext, mDatabaseName).execInsert(tableName, null, contentValues);
+                String idColumn = "id";
+                String valueId = (String) contentValues.get(idColumn);
+
+                if (Utils.isNotNullOrEmpty(valueId)) {
+
+                    String query = "SELECT id FROM " + tableName + " WHERE id=?";
+                    String[] selectionArgs = {valueId};
+                    Cursor c = OrmOpenHelper.getInstance(mContext, mDatabaseName).execRead(query, selectionArgs);
+
+                    if (c != null && c.getCount() > 0) {
+                        //update
+                        update(tableName, contentValues, idColumn, valueId);
+                    } else {
+                        //insert
+                        insert(tableName, contentValues);
+                    }
+
+
+                } else {
+                    insert(tableName, contentValues);
+                }
             }
         }
     }
 
-    public void update(String tableName, HashMap<String, Object> values) {
+    private void insert(String tableName, ContentValues contentValues) {
+        if (contentValues != null) {
+            OrmOpenHelper.getInstance(mContext, mDatabaseName).execInsert(tableName, null, contentValues);
+        }
+    }
 
-        String idColumn = "id";
+    private void update(String tableName, ContentValues contentValues, String idColumn, String valueId) {
 
-        if (values != null && values.containsKey(idColumn)) {
-            ContentValues contentValues = getContentValuesFromMapValues(values);
 
-            if (contentValues != null) {
-                String[] whereColumns = {idColumn};
-                String[] whereClause = {(String) values.get(idColumn)};
-                OrmOpenHelper.getInstance(mContext, mDatabaseName).execUpdate(tableName, contentValues, whereColumns, whereClause);
-            }
+        if (contentValues != null) {
+            String[] whereColumns = {idColumn};
+            String[] whereClause = {valueId};
+
+            OrmOpenHelper.getInstance(mContext, mDatabaseName).execUpdate(tableName, contentValues, whereColumns, whereClause);
         }
     }
 

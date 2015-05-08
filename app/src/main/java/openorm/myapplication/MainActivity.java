@@ -34,11 +34,11 @@ public class MainActivity extends ActionBarActivity {
         track.setTitle("La mia coccinella");
         track.setFkArtist(artist.getId());
 
-        ormManager.insert(artist);
-        ormManager.insert(track);
+        ormManager.insertOrUpdate(artist);
+        ormManager.insertOrUpdate(track);
 
         track.setTitle("Titolo nuovo");
-        ormManager.update(track);
+        ormManager.insertOrUpdate(track);
 
 
     }

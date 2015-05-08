@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import reply.ormlibrary.database.crud.OrmCrudManager;
 import reply.ormlibrary.utils.Utils;
@@ -56,24 +57,32 @@ public class OrmManager {
     }
 
 
-    public void update(Object object) {
+//    public void update(Object object) {
+//        Annotation annotationTable = object.getClass().getAnnotation(AnnotationManager.OrmTable.class);
+//        String tableName = (String) getValue(annotationTable, "tableName");
+//
+//        HashMap<String, Object> mapValues = generateObjectValues(object);
+//
+//        mCrudManager.update(tableName, mapValues);
+//    }
+//
+//    public void insert(Object object) {
+//        Annotation annotationTable = object.getClass().getAnnotation(AnnotationManager.OrmTable.class);
+//        String tableName = (String) getValue(annotationTable, "tableName");
+//
+//        HashMap<String, Object> mapValues = generateObjectValues(object);
+//
+//        mCrudManager.insert(tableName, mapValues);
+//    }
+
+    public void insertOrUpdate(Object object) {
         Annotation annotationTable = object.getClass().getAnnotation(AnnotationManager.OrmTable.class);
         String tableName = (String) getValue(annotationTable, "tableName");
 
         HashMap<String, Object> mapValues = generateObjectValues(object);
 
-        mCrudManager.update(tableName, mapValues);
+        mCrudManager.insertOrUpdate(tableName, mapValues);
     }
-
-    public void insert(Object object) {
-        Annotation annotationTable = object.getClass().getAnnotation(AnnotationManager.OrmTable.class);
-        String tableName = (String) getValue(annotationTable, "tableName");
-
-        HashMap<String, Object> mapValues = generateObjectValues(object);
-
-        mCrudManager.insert(tableName, mapValues);
-    }
-
 
     private void executeCreateTable(Object object) {
         Class clazz = object.getClass();
